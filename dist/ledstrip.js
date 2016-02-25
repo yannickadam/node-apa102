@@ -6,6 +6,7 @@ var LEDStrip = (function () {
         this.nmbLeds = nmbLeds;
         this.spiBus = spiBus;
         this.driver = new upm_apa102.APA102(nmbLeds, spiBus, true);
+        this.data = [];
         for (var i = 0; i < this.nmbLeds; i++) {
             this.data[i] = new rgbb_1.RGBB(0, 0, 0, 0);
         }

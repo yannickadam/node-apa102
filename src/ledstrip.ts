@@ -1,4 +1,6 @@
+// Because jsupm_apa102 is generally installed as a compiled, global node module. Prevents TypeScript errors on compile.
 declare function require(name: string): any;
+
 var upm_apa102 = require('jsupm_apa102');
 import {RGBB} from "./rgbb";
 
@@ -14,6 +16,7 @@ export class LEDStrip {
   constructor(private nmbLeds:Number, private spiBus:Number = 0) {
     this.driver = new upm_apa102.APA102(nmbLeds, spiBus, true);
 
+    this.data = [];
     for( var i=0; i < this.nmbLeds; i++) {
       this.data[i] = new RGBB(0,0,0,0);
     }
