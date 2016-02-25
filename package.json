@@ -1,0 +1,26 @@
+{
+  "name": "node-apa102",
+  "version": "1.0.0",
+  "description": "APA102 LED Strip control module based on UPM APA102 module",
+  "main": "ledstrip.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yannickadam/node-apa102.git"
+  },
+  "keywords": [
+    "LED",
+    "STRIP",
+    "MRAA",
+    "UPM",
+    "APA102"
+  ],
+  "author": "Yannick Adam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yannickadam/node-apa102/issues"
+  },
+  "homepage": "https://github.com/yannickadam/node-apa102#readme"
+}
