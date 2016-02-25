@@ -1,6 +1,6 @@
 module.exports = {
 
-  LEDStrip: require('dist/ledstrip'),
-  RGBB: require('dist/rgbb')
+  LEDStrip: require('./dist/ledstrip').LEDStrip,
+  RGBB: require('./dist/rgbb').RGBB
 
 };

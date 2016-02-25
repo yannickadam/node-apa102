@@ -24,6 +24,17 @@ export class RGBB {
 
   /**
    *
+   * @param color
+   */
+  public setRGBB(color:RGBB) {
+    this.R = color.R;
+    this.G = color.G;
+    this.B = color.B;
+    this.BB = color.BB;
+  }
+
+  /**
+   *
    * @param name        The name of the color to use
    * @param brightness  Brightness value (0-31, default is 31)
    * @returns {RGBB}
@@ -37,7 +48,7 @@ export class RGBB {
       return new RGBB(255, 255, 255, brightness);
   }
 
-  static Colors = { "red": {R:255, G:0, B:0},
+  static Colors:any = { "red": {R:255, G:0, B:0},
                     "green": {R:0, G:255, B:0},
                     "blue": {R:0, G:0, B:255}
                   }

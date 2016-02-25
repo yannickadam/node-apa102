@@ -5,6 +5,12 @@ var RGBB = (function () {
         this.B = B;
         this.BB = BB;
     }
+    RGBB.prototype.setRGBB = function (color) {
+        this.R = color.R;
+        this.G = color.G;
+        this.B = color.B;
+        this.BB = color.BB;
+    };
     RGBB.fromColorName = function (name, brightness) {
         if (brightness === void 0) { brightness = 31; }
         var color = RGBB.Colors[name.toLowerCase()];
