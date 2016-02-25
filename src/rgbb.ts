@@ -1,3 +1,6 @@
+/**
+ * Class describing a (RGB) color with (B)rightness
+ */
 export class RGBB {
 
   public R:number;
@@ -5,6 +8,13 @@ export class RGBB {
   public B:number;
   public BB:number;
 
+  /**
+   *
+   * @param R   Red component (0-255)
+   * @param G   Green component (0-255)
+   * @param B   Blue component (0-255)
+   * @param BB  Brightness (0-31)
+   */
   constructor(R:number, G:number, B:number, BB:number) {
     this.R = R;
     this.G = G;
@@ -12,8 +22,14 @@ export class RGBB {
     this.BB = BB;
   }
 
-  static fromColorName(name:string, brightness:number=31) {
-      var color = RGBB.Colors[name.toLowerCase()];
+  /**
+   *
+   * @param name        The name of the color to use
+   * @param brightness  Brightness value (0-31, default is 31)
+   * @returns {RGBB}
+   */
+  static fromColorName(name:string, brightness:number=31):RGBB {
+      var color:any = RGBB.Colors[name.toLowerCase()];
       if( color ) {
         return new RGBB(color.R, color.G, color.B, brightness);
       }
