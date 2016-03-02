@@ -1,6 +1,8 @@
 module.exports = {
 
   LEDStrip: require('./dist/ledstrip').LEDStrip,
-  RGBB: require('./dist/rgbb').RGBB
+  RGBAB: require('./dist/rgbab').RGBAB,
+  Scheduler: require('./dist/scheduler').Scheduler,
+  Command: require('./dist/command').Command
 
 };
