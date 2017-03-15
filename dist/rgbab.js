@@ -1,3 +1,4 @@
+"use strict";
 var RGBAB = (function () {
     function RGBAB(R, G, B, A, BB) {
         this.R = R;
@@ -32,9 +33,10 @@ var RGBAB = (function () {
     };
     RGBAB.Colors = { "red": { R: 255, G: 0, B: 0 },
         "green": { R: 0, G: 255, B: 0 },
-        "blue": { R: 0, G: 0, B: 255 }
+        "blue": { R: 0, G: 0, B: 255 },
+        "black": { R: 0, G: 0, B: 0 }
     };
     return RGBAB;
-})();
+}());
 exports.RGBAB = RGBAB;
 //# sourceMappingURL=rgbab.js.map

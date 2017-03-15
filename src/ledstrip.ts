@@ -19,7 +19,7 @@ export class LEDStrip {
    * Instantiate a new APA102 LED Strip using jsupm_apa102 driver
    *
    */
-  constructor(private nmbLeds:number, private nmbLayers:number, spiBus:number = 0) {
+  constructor(private nmbLeds:number, private nmbLayers:number = 1, spiBus:number = 0) {
     this.driver = new upm_apa102.APA102(this.nmbLeds, spiBus, false);
 
     // Init Buffer
@@ -36,7 +36,7 @@ export class LEDStrip {
     for( var i=0; i < this.nmbLayers; i++) {
       this.layers[i] = [];
       for( var j=0; j < this.nmbLeds; j++) {
-        this.layers[i][j] = new RGBAB(0,0,0,1,0);
+        this.layers[i][j] = new RGBAB(0,0,0,1,31);
       }
     }
 
@@ -55,13 +55,35 @@ export class LEDStrip {
     this.commit();
   }
 
+  public rainbow( layer:number=0 ) {
+ 
+    var itr = Math.floor( this.nmbLeds / 7 );
+
+    var rainbow_colors = [ new RGBAB(255, 0, 0, 1, 31),
+			   new RGBAB(255, 127, 0, 1, 31),
+			   new RGBAB(255, 255, 0, 1, 31),
+			   new RGBAB(0, 255, 0, 1, 31),
+			   new RGBAB(0, 0, 255, 1, 31), 
+			   new RGBAB(75, 0, 130, 1, 31), 
+			   new RGBAB(143, 0, 255, 1, 31) ];
+
+    for( var i=0; i < this.nmbLeds; i++ ) {
+	var idx = Math.min(Math.floor(i / itr), 6);
+	this.layers[layer][i].setRGBAB(rainbow_colors[idx]);
+    }
+    
+    this.commit();
+
+  }
+
+
   /**
    * turnOff()
    * Shuts down all LEDs on all layers
    */
   public turnOff() {
     for( var i=0; i < this.nmbLayers; i++) {
-      this.setAllLeds( new RGBAB(0,0,0,1,0), i );
+      this.setAllLeds( new RGBAB(0,0,0,1,31), i );
     }
     this.commit();
   }

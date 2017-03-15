@@ -68,7 +68,8 @@ export class RGBAB {
 
   static Colors:any = { "red": {R:255, G:0, B:0},
                     "green": {R:0, G:255, B:0},
-                    "blue": {R:0, G:0, B:255}
+                    "blue": {R:0, G:0, B:255},
+		"black": {R:0, G:0, B:0}
                   }
 
 }

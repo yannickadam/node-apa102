@@ -1,7 +1,9 @@
+"use strict";
 var upm_apa102 = require('jsupm_apa102');
 var rgbab_1 = require("./rgbab");
 var LEDStrip = (function () {
     function LEDStrip(nmbLeds, nmbLayers, spiBus) {
+        if (nmbLayers === void 0) { nmbLayers = 1; }
         if (spiBus === void 0) { spiBus = 0; }
         this.nmbLeds = nmbLeds;
         this.nmbLayers = nmbLayers;
@@ -15,7 +17,7 @@ var LEDStrip = (function () {
         for (var i = 0; i < this.nmbLayers; i++) {
             this.layers[i] = [];
             for (var j = 0; j < this.nmbLeds; j++) {
-                this.layers[i][j] = new rgbab_1.RGBAB(0, 0, 0, 1, 0);
+                this.layers[i][j] = new rgbab_1.RGBAB(0, 0, 0, 1, 31);
             }
         }
     }
@@ -26,9 +28,25 @@ var LEDStrip = (function () {
         }
         this.commit();
     };
+    LEDStrip.prototype.rainbow = function (layer) {
+        if (layer === void 0) { layer = 0; }
+        var itr = Math.floor(this.nmbLeds / 7);
+        var rainbow_colors = [new rgbab_1.RGBAB(255, 0, 0, 1, 31),
+            new rgbab_1.RGBAB(255, 127, 0, 1, 31),
+            new rgbab_1.RGBAB(255, 255, 0, 1, 31),
+            new rgbab_1.RGBAB(0, 255, 0, 1, 31),
+            new rgbab_1.RGBAB(0, 0, 255, 1, 31),
+            new rgbab_1.RGBAB(75, 0, 130, 1, 31),
+            new rgbab_1.RGBAB(143, 0, 255, 1, 31)];
+        for (var i = 0; i < this.nmbLeds; i++) {
+            var idx = Math.min(Math.floor(i / itr), 6);
+            this.layers[layer][i].setRGBAB(rainbow_colors[idx]);
+        }
+        this.commit();
+    };
     LEDStrip.prototype.turnOff = function () {
         for (var i = 0; i < this.nmbLayers; i++) {
-            this.setAllLeds(new rgbab_1.RGBAB(0, 0, 0, 1, 0), i);
+            this.setAllLeds(new rgbab_1.RGBAB(0, 0, 0, 1, 31), i);
         }
         this.commit();
     };
@@ -96,6 +114,6 @@ var LEDStrip = (function () {
         }, 0);
     };
     return LEDStrip;
-})();
+}());
 exports.LEDStrip = LEDStrip;
 //# sourceMappingURL=ledstrip.js.map

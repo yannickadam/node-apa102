@@ -1,3 +1,4 @@
+"use strict";
 var Scheduler = (function () {
     function Scheduler(strip) {
         this.queue = [];
@@ -19,7 +20,8 @@ var Scheduler = (function () {
     };
     Scheduler.prototype._play_internal = function () {
         var action = this.queue[this.currentIndex];
-        this.strip[action.command.method].apply(this.strip, action.command.params);
+        var method = this.strip[action.command.method];
+        method.apply(this.strip, action.command.params);
         console.log("Playing action:", action.command.method, "with params", action.command.params);
         this.currentIndex++;
         if (this.currentIndex < this.queue.length) {
@@ -45,6 +47,6 @@ var Scheduler = (function () {
         this.queue.push(element);
     };
     return Scheduler;
-})();
+}());
 exports.Scheduler = Scheduler;
 //# sourceMappingURL=scheduler.js.map
