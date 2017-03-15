@@ -105,7 +105,6 @@ export class LEDStrip {
       this.data[led*4+3] = color.R;
     }
     this.driver.setLeds(0, this.nmbLeds-1, this.data);
-    //this.driver.pushState();
   }
 
   /**

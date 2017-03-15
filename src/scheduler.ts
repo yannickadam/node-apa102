@@ -10,6 +10,7 @@ export class Scheduler {
   private strip:LEDStrip;
   private currentIndex:number = 0;
   private timer:number;
+  private loop:boolean;
 
   public playing = false;
 
@@ -29,8 +30,8 @@ export class Scheduler {
 
     if( this.queue.length > 0) {
       var nextAction = this.queue[this.currentIndex];
-      var currentTime = Date.now();
 
+      this.loop = loop;
       this.playing = true;
       this.timer = setTimeout( this._play_internal.bind(this), nextAction.time );
     } else {
@@ -42,8 +43,13 @@ export class Scheduler {
 
     // Play the action
     var action = this.queue[this.currentIndex];
+<<<<<<< HEAD
     var method:any = <any>this.strip[action.command.method];
     method.apply(this.strip, action.command.params);
+=======
+    (<any>this.strip)[action.command.method].apply(this.strip, action.command.params);
+
+>>>>>>> 8106d16c578b5c7867c89c8cda0328e77d014291
     console.log("Playing action:",action.command.method, "with params", action.command.params);
     // Note: We assume that the action returns almost instantly, so we do not need to account for the time spent. Just
     // setTimeout until the next action.
@@ -51,6 +57,11 @@ export class Scheduler {
     // TODO: Investigate having a callback on the action instead?
 
     this.currentIndex++;
+
+    // If we need to loop, do it here.
+    if( this.currentIndex == this.queue.length && this.loop ) {
+      this.currentIndex = 0;
+    }
 
     if( this.currentIndex < this.queue.length ) {
       var nextAction = this.queue[this.currentIndex];
@@ -61,12 +72,24 @@ export class Scheduler {
     }
   }
 
-
   /**
+   * pause
    *
+   * Puts the sequence on hold. Play resumes it.
    */
   public pause() {
+    if( this.timer )
+      clearTimeout(this.timer);
+  }
 
+  /**
+   * stop
+   *
+   * Stops playing, and resets the sequence
+   */
+  public stop() {
+    this.pause();
+    this.currentIndex = 0;
   }
 
   public add(command:Command, time:number) {

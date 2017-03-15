@@ -10,7 +10,7 @@ var Scheduler = (function () {
         if (loop === void 0) { loop = false; }
         if (this.queue.length > 0) {
             var nextAction = this.queue[this.currentIndex];
-            var currentTime = Date.now();
+            this.loop = loop;
             this.playing = true;
             this.timer = setTimeout(this._play_internal.bind(this), nextAction.time);
         }
@@ -24,6 +24,9 @@ var Scheduler = (function () {
         method.apply(this.strip, action.command.params);
         console.log("Playing action:", action.command.method, "with params", action.command.params);
         this.currentIndex++;
+        if (this.currentIndex == this.queue.length && this.loop) {
+            this.currentIndex = 0;
+        }
         if (this.currentIndex < this.queue.length) {
             var nextAction = this.queue[this.currentIndex];
             this.timer = setTimeout(this._play_internal.bind(this), nextAction.time);
@@ -34,6 +37,12 @@ var Scheduler = (function () {
         }
     };
     Scheduler.prototype.pause = function () {
+        if (this.timer)
+            clearTimeout(this.timer);
+    };
+    Scheduler.prototype.stop = function () {
+        this.pause();
+        this.currentIndex = 0;
     };
     Scheduler.prototype.add = function (command, time) {
         var element = { command: command, time: time };
