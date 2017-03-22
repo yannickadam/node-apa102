@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var upm_apa102 = require('jsupm_apa102');
 var rgbab_1 = require("./rgbab");
 var LEDStrip = (function () {
@@ -30,17 +31,74 @@ var LEDStrip = (function () {
     };
     LEDStrip.prototype.rainbow = function (layer) {
         if (layer === void 0) { layer = 0; }
-        var itr = Math.floor(this.nmbLeds / 7);
+        var itr = Math.floor(this.nmbLeds / 6);
         var rainbow_colors = [new rgbab_1.RGBAB(255, 0, 0, 1, 31),
             new rgbab_1.RGBAB(255, 127, 0, 1, 31),
             new rgbab_1.RGBAB(255, 255, 0, 1, 31),
             new rgbab_1.RGBAB(0, 255, 0, 1, 31),
             new rgbab_1.RGBAB(0, 0, 255, 1, 31),
-            new rgbab_1.RGBAB(75, 0, 130, 1, 31),
-            new rgbab_1.RGBAB(143, 0, 255, 1, 31)];
+            new rgbab_1.RGBAB(75, 0, 130, 1, 31)];
         for (var i = 0; i < this.nmbLeds; i++) {
-            var idx = Math.min(Math.floor(i / itr), 6);
+            var idx = Math.min(Math.floor(i / itr), 5);
             this.layers[layer][i].setRGBAB(rainbow_colors[idx]);
+        }
+        this.commit();
+    };
+    LEDStrip.prototype.rainbow_smooth = function () {
+        var itr = (280 / 360) / this.nmbLeds;
+        for (var i = 0; i < this.nmbLeds; i++) {
+            var color = rgbab_1.RGBAB.fromHSL(i * itr, 1.0, 0.5);
+            console.log(color);
+            this.layers[0][i].setRGBAB(color);
+        }
+        this.commit();
+    };
+    LEDStrip.prototype.rs2 = function (offset) {
+        if (offset === void 0) { offset = 0; }
+        var itr = 1 / this.nmbLeds;
+        for (var i = 0; i < offset; i++) {
+            this.layers[0][i].setRGBAB(new rgbab_1.RGBAB(255, 0, 0, 1, 31));
+        }
+        for (var i = offset; i < this.nmbLeds; i++) {
+            var div = (Math.abs((itr * i) % 1) * 6);
+            var ascending = Math.floor((div % 1) * 255);
+            var descending = 255 - ascending;
+            var color = void 0;
+            switch (Math.floor(div)) {
+                case 0:
+                    color = new rgbab_1.RGBAB(255, ascending, 0, 1, 31);
+                    break;
+                case 1:
+                    color = new rgbab_1.RGBAB(descending, 255, 0, 1, 31);
+                    break;
+                case 2:
+                    color = new rgbab_1.RGBAB(0, 255, ascending, 1, 31);
+                    break;
+                case 3:
+                    color = new rgbab_1.RGBAB(0, descending, 255, 1, 31);
+                    break;
+                case 4:
+                    color = new rgbab_1.RGBAB(ascending, 0, 255, 1, 31);
+                    break;
+                default:
+                    color = new rgbab_1.RGBAB(255, 0, descending, 1, 31);
+            }
+            console.log(Math.floor(div), color);
+            this.layers[0][i] = color;
+        }
+        this.commit();
+    };
+    LEDStrip.prototype.rs3 = function (offset) {
+        if (offset === void 0) { offset = 0; }
+        var itr = Math.floor((this.nmbLeds - offset) / 7);
+        var hues = [2, 24, 39, 70, 158, 230, 252];
+        for (var i_1 = 0; i_1 < offset; i_1++) {
+            this.layers[0][i_1].setRGBAB(rgbab_1.RGBAB.fromHSL(2 / 360, 1.0, 0.5));
+        }
+        for (var i = 0; i < (this.nmbLeds - offset); i++) {
+            var idx = Math.min(Math.floor(i / itr), 5);
+            var hue = hues[idx] + ((hues[idx + 1] - hues[idx]) * (((i - (idx * itr)) / itr) % itr));
+            this.layers[0][i + offset] = rgbab_1.RGBAB.fromHSL(hue / 360, 1.0, 0.5);
         }
         this.commit();
     };

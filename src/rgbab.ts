@@ -70,6 +70,74 @@ export class RGBAB {
                     "green": {R:0, G:255, B:0},
                     "blue": {R:0, G:0, B:255},
 		"black": {R:0, G:0, B:0}
-                  }
+                  };
+
+  /**
+   * Creates a RGBAB color from HSL values
+   * @param h 
+   * @param sl 
+   * @param l 
+   */                  
+  static fromHSL(h: number, sl: number, l: number): RGBAB {
+
+    let r = l;   // default to gray
+    let g = l;
+    let b = l;
+    const v = (l <= 0.5) ? (l * (1.0 + sl)) : (l + sl - l * sl);
+            
+    if (v > 0)
+    {
+ 
+      const m = l + l - v;
+      const sv = (v - m ) / v;
+      h *= 6.0;
+      const sextant = Math.floor(h);
+      const fract = h - sextant;
+      const vsf = v * sv * fract;
+      const mid1 = m + vsf;
+      const mid2 = v - vsf;
+      
+      switch (sextant)
+      {
+        case 0:
+          r = v;
+          g = mid1;
+          b = m;
+          break;
+        
+        case 1:
+          r = mid2;
+          g = v;
+          b = m;
+        break;
+        
+        case 2:
+          r = m;
+          g = v;
+          b = mid1;
+        break;
+        
+        case 3:
+          r = m;
+          g = mid2;
+          b = v;
+        break;
+        
+        case 4:
+          r = mid1;
+          g = m;
+          b = v;
+        break;
+        
+        case 5:
+          r = v;
+          g = m;
+          b = mid2;
+        break;
+      }
+    }
+
+    return new RGBAB( Math.floor(r * 255), Math.floor(g * 255), Math.floor(b * 255), 1, 31);          
+  }
 
 }

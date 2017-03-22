@@ -55,26 +55,114 @@ export class LEDStrip {
     this.commit();
   }
 
+  /**
+   * Creates a rainbow
+   * @param layer 
+   */
   public rainbow( layer:number=0 ) {
  
-    var itr = Math.floor( this.nmbLeds / 7 );
+    var itr = Math.floor( this.nmbLeds / 6 );
 
     var rainbow_colors = [ new RGBAB(255, 0, 0, 1, 31),
 			   new RGBAB(255, 127, 0, 1, 31),
 			   new RGBAB(255, 255, 0, 1, 31),
 			   new RGBAB(0, 255, 0, 1, 31),
 			   new RGBAB(0, 0, 255, 1, 31), 
-			   new RGBAB(75, 0, 130, 1, 31), 
-			   new RGBAB(143, 0, 255, 1, 31) ];
+			   new RGBAB(75, 0, 130, 1, 31) ];
 
     for( var i=0; i < this.nmbLeds; i++ ) {
-	var idx = Math.min(Math.floor(i / itr), 6);
+	var idx = Math.min(Math.floor(i / itr), 5);
 	this.layers[layer][i].setRGBAB(rainbow_colors[idx]);
     }
     
     this.commit();
 
   }
+
+  public rainbow_smooth() {
+
+    // Don't go over full spectrum
+    const itr = (280/360) / this.nmbLeds;
+
+    for( let i=0; i < this.nmbLeds; i++ ) {
+
+      const color = RGBAB.fromHSL(i*itr, 1.0, 0.5);
+      console.log(color);
+
+      this.layers[0][i].setRGBAB( color );
+    }
+
+    this.commit();
+  }
+
+  public rs2(offset:number = 0 ) {
+
+    const itr = 1 / this.nmbLeds;
+
+    for( let i=0; i < offset; i++ ) {
+      this.layers[0][i].setRGBAB( new RGBAB(255, 0, 0, 1, 31) );
+    }
+
+    for( let i=offset; i < this.nmbLeds; i++ ) {
+
+      const div = (Math.abs((itr*i) % 1) * 6);
+      const ascending = Math.floor((div % 1) * 255);
+      const descending = 255 - ascending;
+
+      let color;
+      switch (Math.floor(div))
+      {
+          case 0:
+              color =  new RGBAB(255, ascending, 0, 1, 31);
+              break;
+          case 1:
+              color = new RGBAB(descending, 255, 0, 1, 31);
+              break;
+          case 2:
+              color = new RGBAB(0, 255, ascending, 1, 31);
+              break;
+          case 3:
+              color = new RGBAB(0, descending, 255, 1, 31);
+              break;
+          case 4:
+              color = new RGBAB(ascending, 0, 255, 1, 31);
+              break;
+          default: // case 5:
+              color = new RGBAB(255, 0, descending, 1, 31);
+      }
+
+      console.log(Math.floor(div), color);
+      this.layers[0][i] = color;
+
+  }
+
+  this.commit();
+
+}
+
+public rs3(offset:number = 0) {
+
+    var itr = Math.floor( (this.nmbLeds-offset) / 7 );
+    var hues = [ 2, 24, 39, 70, 158, 230, 252 ];
+
+    // Handle offset
+    for( let i=0; i < offset; i++ ) {
+      this.layers[0][i].setRGBAB( RGBAB.fromHSL(2/360, 1.0, 0.5) );
+    }
+
+    for( var i=0; i < (this.nmbLeds-offset); i++ ) {
+      // Starting index
+      const idx = Math.min(Math.floor(i / itr), 5);
+
+      // Lerp
+      const hue = hues[idx] + ( (hues[idx+1] - hues[idx]) * ( ((i-(idx*itr))/itr) % itr ) );
+
+	    this.layers[0][i+offset] = RGBAB.fromHSL(hue/360, 1.0, 0.5);
+    }
+    
+    this.commit();  
+
+}
 
 
   /**

@@ -43,13 +43,11 @@ export class Scheduler {
 
     // Play the action
     var action = this.queue[this.currentIndex];
-<<<<<<< HEAD
-    var method:any = <any>this.strip[action.command.method];
+    var method:any = (<any>this.strip)[action.command.method];
     method.apply(this.strip, action.command.params);
-=======
-    (<any>this.strip)[action.command.method].apply(this.strip, action.command.params);
 
->>>>>>> 8106d16c578b5c7867c89c8cda0328e77d014291
+    //(<any>this.strip)[action.command.method].apply(this.strip, action.command.params);
+
     console.log("Playing action:",action.command.method, "with params", action.command.params);
     // Note: We assume that the action returns almost instantly, so we do not need to account for the time spent. Just
     // setTimeout until the next action.
