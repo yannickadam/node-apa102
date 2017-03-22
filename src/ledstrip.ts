@@ -33,7 +33,7 @@ export class LEDStrip {
 
     // Init Layers
     this.layers = [];
-    for( var i=0; i < this.nmbLayers; i++) {
+    for( var i=0; i < this.nmbLayers+1; i++) {
       this.layers[i] = [];
       for( var j=0; j < this.nmbLeds; j++) {
         this.layers[i][j] = new RGBAB(0,0,0,1,31);
@@ -59,9 +59,9 @@ export class LEDStrip {
    * Creates a rainbow
    * @param layer 
    */
-  public rainbow( layer:number=0 ) {
+  public rainbow( offset:number=0 ) {
  
-    var itr = Math.floor( this.nmbLeds / 6 );
+    var itr = Math.floor( (this.nmbLeds-offset) / 6 );
 
     var rainbow_colors = [ new RGBAB(255, 0, 0, 1, 31),
 			   new RGBAB(255, 127, 0, 1, 31),
@@ -70,26 +70,34 @@ export class LEDStrip {
 			   new RGBAB(0, 0, 255, 1, 31), 
 			   new RGBAB(75, 0, 130, 1, 31) ];
 
-    for( var i=0; i < this.nmbLeds; i++ ) {
-	var idx = Math.min(Math.floor(i / itr), 5);
-	this.layers[layer][i].setRGBAB(rainbow_colors[idx]);
+    // Handle offset
+    for( let i=0; i < offset; i++ ) {
+      this.layers[1][i].setRGBAB( RGBAB.fromHSL(0, 1.0, 0.5) );
+    }
+
+    for( var i=offset; i < this.nmbLeds; i++ ) {
+	    var idx = Math.min(Math.floor(i / itr), 5);
+	    this.layers[1][i].setRGBAB(rainbow_colors[idx]);
     }
     
     this.commit();
 
   }
 
-  public rainbow_smooth() {
+  public rainbow_smooth(offset:number=0) {
 
     // Don't go over full spectrum
-    const itr = (280/360) / this.nmbLeds;
+    const itr = (280/360) / (this.nmbLeds - offset);
 
-    for( let i=0; i < this.nmbLeds; i++ ) {
+    // Handle offset
+    for( let i=0; i < offset; i++ ) {
+      this.layers[1][i].setRGBAB( RGBAB.fromHSL(0, 1.0, 0.5) );
+    }
+
+    for( let i=offset; i < this.nmbLeds; i++ ) {
 
       const color = RGBAB.fromHSL(i*itr, 1.0, 0.5);
-      console.log(color);
-
-      this.layers[0][i].setRGBAB( color );
+      this.layers[1][i].setRGBAB( color );
     }
 
     this.commit();
@@ -100,7 +108,7 @@ export class LEDStrip {
     const itr = 1 / this.nmbLeds;
 
     for( let i=0; i < offset; i++ ) {
-      this.layers[0][i].setRGBAB( new RGBAB(255, 0, 0, 1, 31) );
+      this.layers[1][i].setRGBAB( new RGBAB(255, 0, 0, 1, 31) );
     }
 
     for( let i=offset; i < this.nmbLeds; i++ ) {
@@ -131,9 +139,7 @@ export class LEDStrip {
               color = new RGBAB(255, 0, descending, 1, 31);
       }
 
-      console.log(Math.floor(div), color);
-      this.layers[0][i] = color;
-
+      this.layers[1][i] = color;
   }
 
   this.commit();
@@ -147,7 +153,7 @@ public rs3(offset:number = 0) {
 
     // Handle offset
     for( let i=0; i < offset; i++ ) {
-      this.layers[0][i].setRGBAB( RGBAB.fromHSL(2/360, 1.0, 0.5) );
+      this.layers[1][i].setRGBAB( RGBAB.fromHSL(2/360, 1.0, 0.5) );
     }
 
     for( var i=0; i < (this.nmbLeds-offset); i++ ) {
@@ -157,7 +163,7 @@ public rs3(offset:number = 0) {
       // Lerp
       const hue = hues[idx] + ( (hues[idx+1] - hues[idx]) * ( ((i-(idx*itr))/itr) % itr ) );
 
-	    this.layers[0][i+offset] = RGBAB.fromHSL(hue/360, 1.0, 0.5);
+	    this.layers[1][i+offset] = RGBAB.fromHSL(hue/360, 1.0, 0.5);
     }
     
     this.commit();  
@@ -256,5 +262,44 @@ public rs3(offset:number = 0) {
     }, 0);
 
   }
+
+  public fadeToRainbow(type:number, offset:number=0, duration:number=200, layer:number=0) {
+
+    var counter = 255;
+    
+    if( type == 4) {
+      this.rs3(offset);
+    } else if( type == 3 ) {
+      this.rs2(offset);
+    } else if( type == 2 ) {
+      this.rainbow_smooth(offset);
+    } else {
+      this.rainbow(offset);
+    }        
+
+    var twit = setInterval( () => {
+      for (var i = 0; i < this.nmbLeds; i++) {
+        
+        const current = this.layers[layer][i];
+        const color = this.layers[1][i];
+
+        if( current.R > color.R ) current.R--;
+        else if( current.R < color.R ) current.R++;
+        if( current.G > color.G ) current.G--;
+        else if( current.G < color.G ) current.G++;
+        if( current.B > color.B ) current.B--;
+        else if( current.B < color.B ) current.B++;
+      }
+
+      counter--;
+      this.commit();
+      if( counter == 0) {
+        clearInterval(twit);
+      }
+
+    }, 0);
+
+  }
+
 
 }

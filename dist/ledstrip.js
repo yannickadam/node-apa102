@@ -15,7 +15,7 @@ var LEDStrip = (function () {
             this.data[i] = 224;
         }
         this.layers = [];
-        for (var i = 0; i < this.nmbLayers; i++) {
+        for (var i = 0; i < this.nmbLayers + 1; i++) {
             this.layers[i] = [];
             for (var j = 0; j < this.nmbLeds; j++) {
                 this.layers[i][j] = new rgbab_1.RGBAB(0, 0, 0, 1, 31);
@@ -29,27 +29,33 @@ var LEDStrip = (function () {
         }
         this.commit();
     };
-    LEDStrip.prototype.rainbow = function (layer) {
-        if (layer === void 0) { layer = 0; }
-        var itr = Math.floor(this.nmbLeds / 6);
+    LEDStrip.prototype.rainbow = function (offset) {
+        if (offset === void 0) { offset = 0; }
+        var itr = Math.floor((this.nmbLeds - offset) / 6);
         var rainbow_colors = [new rgbab_1.RGBAB(255, 0, 0, 1, 31),
             new rgbab_1.RGBAB(255, 127, 0, 1, 31),
             new rgbab_1.RGBAB(255, 255, 0, 1, 31),
             new rgbab_1.RGBAB(0, 255, 0, 1, 31),
             new rgbab_1.RGBAB(0, 0, 255, 1, 31),
             new rgbab_1.RGBAB(75, 0, 130, 1, 31)];
-        for (var i = 0; i < this.nmbLeds; i++) {
+        for (var i_1 = 0; i_1 < offset; i_1++) {
+            this.layers[1][i_1].setRGBAB(rgbab_1.RGBAB.fromHSL(0, 1.0, 0.5));
+        }
+        for (var i = offset; i < this.nmbLeds; i++) {
             var idx = Math.min(Math.floor(i / itr), 5);
-            this.layers[layer][i].setRGBAB(rainbow_colors[idx]);
+            this.layers[1][i].setRGBAB(rainbow_colors[idx]);
         }
         this.commit();
     };
-    LEDStrip.prototype.rainbow_smooth = function () {
-        var itr = (280 / 360) / this.nmbLeds;
-        for (var i = 0; i < this.nmbLeds; i++) {
+    LEDStrip.prototype.rainbow_smooth = function (offset) {
+        if (offset === void 0) { offset = 0; }
+        var itr = (280 / 360) / (this.nmbLeds - offset);
+        for (var i = 0; i < offset; i++) {
+            this.layers[1][i].setRGBAB(rgbab_1.RGBAB.fromHSL(0, 1.0, 0.5));
+        }
+        for (var i = offset; i < this.nmbLeds; i++) {
             var color = rgbab_1.RGBAB.fromHSL(i * itr, 1.0, 0.5);
-            console.log(color);
-            this.layers[0][i].setRGBAB(color);
+            this.layers[1][i].setRGBAB(color);
         }
         this.commit();
     };
@@ -57,7 +63,7 @@ var LEDStrip = (function () {
         if (offset === void 0) { offset = 0; }
         var itr = 1 / this.nmbLeds;
         for (var i = 0; i < offset; i++) {
-            this.layers[0][i].setRGBAB(new rgbab_1.RGBAB(255, 0, 0, 1, 31));
+            this.layers[1][i].setRGBAB(new rgbab_1.RGBAB(255, 0, 0, 1, 31));
         }
         for (var i = offset; i < this.nmbLeds; i++) {
             var div = (Math.abs((itr * i) % 1) * 6);
@@ -83,8 +89,7 @@ var LEDStrip = (function () {
                 default:
                     color = new rgbab_1.RGBAB(255, 0, descending, 1, 31);
             }
-            console.log(Math.floor(div), color);
-            this.layers[0][i] = color;
+            this.layers[1][i] = color;
         }
         this.commit();
     };
@@ -92,13 +97,13 @@ var LEDStrip = (function () {
         if (offset === void 0) { offset = 0; }
         var itr = Math.floor((this.nmbLeds - offset) / 7);
         var hues = [2, 24, 39, 70, 158, 230, 252];
-        for (var i_1 = 0; i_1 < offset; i_1++) {
-            this.layers[0][i_1].setRGBAB(rgbab_1.RGBAB.fromHSL(2 / 360, 1.0, 0.5));
+        for (var i_2 = 0; i_2 < offset; i_2++) {
+            this.layers[1][i_2].setRGBAB(rgbab_1.RGBAB.fromHSL(2 / 360, 1.0, 0.5));
         }
         for (var i = 0; i < (this.nmbLeds - offset); i++) {
             var idx = Math.min(Math.floor(i / itr), 5);
             var hue = hues[idx] + ((hues[idx + 1] - hues[idx]) * (((i - (idx * itr)) / itr) % itr));
-            this.layers[0][i + offset] = rgbab_1.RGBAB.fromHSL(hue / 360, 1.0, 0.5);
+            this.layers[1][i + offset] = rgbab_1.RGBAB.fromHSL(hue / 360, 1.0, 0.5);
         }
         this.commit();
     };
@@ -151,6 +156,48 @@ var LEDStrip = (function () {
         var twit = setInterval(function () {
             for (var i = 0; i < _this.nmbLeds; i++) {
                 var current = _this.layers[layer][i];
+                if (current.R > color.R)
+                    current.R--;
+                else if (current.R < color.R)
+                    current.R++;
+                if (current.G > color.G)
+                    current.G--;
+                else if (current.G < color.G)
+                    current.G++;
+                if (current.B > color.B)
+                    current.B--;
+                else if (current.B < color.B)
+                    current.B++;
+            }
+            counter--;
+            _this.commit();
+            if (counter == 0) {
+                clearInterval(twit);
+            }
+        }, 0);
+    };
+    LEDStrip.prototype.fadeToRainbow = function (type, offset, duration, layer) {
+        var _this = this;
+        if (offset === void 0) { offset = 0; }
+        if (duration === void 0) { duration = 200; }
+        if (layer === void 0) { layer = 0; }
+        var counter = 255;
+        if (type == 4) {
+            this.rs3(offset);
+        }
+        else if (type == 3) {
+            this.rs2(offset);
+        }
+        else if (type == 2) {
+            this.rainbow_smooth(offset);
+        }
+        else {
+            this.rainbow(offset);
+        }
+        var twit = setInterval(function () {
+            for (var i = 0; i < _this.nmbLeds; i++) {
+                var current = _this.layers[layer][i];
+                var color = _this.layers[1][i];
                 if (current.R > color.R)
                     current.R--;
                 else if (current.R < color.R)
